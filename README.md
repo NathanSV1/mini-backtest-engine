@@ -14,7 +14,7 @@ Un moteur de backtest simple et efficace pour tester des stratégies de trading 
 ```bash
 # Cloner le repository
 git clone https://github.com/NathanSV1/mini-backtest-engine.git
-cd backtest0
+cd mini-backtest-engine
 
 # Créer un environnement virtuel
 python -m venv venv

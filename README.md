@@ -1,32 +1,32 @@
 # Backtest Engine
 
-Un moteur de backtest simple et efficace pour tester des stratégies de trading algorithmique.
+A simple and efficient backtesting engine for testing algorithmic trading strategies.
 
-## Fonctionnalités
+## Features
 
-- **Stratégies multiples** : Moving Average, Channel Breakout, Momentum (volatility-adjusted)
-- **Moteur de backtest optimisé** : Utilise numpy pour des performances optimales
-- **Visualisation** : Graphiques comparatifs avec statistiques de performance
-- **Architecture modulaire** : Facile à étendre avec de nouvelles stratégies
+- **Multiple strategies**: Moving Average, Channel Breakout, Momentum (volatility-adjusted)
+- **Optimized backtesting engine**: Uses NumPy for optimal performance
+- **Visualization**: Comparative charts with performance statistics
+- **Modular architecture**: Easy to extend with new strategies
 
 ## Installation
 
 ```bash
-# Cloner le repository
+# Clone the repository
 git clone https://github.com/NathanSV1/mini-backtest-engine.git
 cd mini-backtest-engine
 
-# Créer un environnement virtuel
+# Create a virtual environment
 python -m venv venv
-source venv/bin/activate  # Sur Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Installer les dépendances
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-## Utilisation
+## Usage
 
-### Exemple basique
+### Basic example
 
 ```python
 from data_loader import DataLoader
@@ -34,12 +34,12 @@ from strategy import TrendFollowingStrategy
 from portfolio import Portfolio
 from backtest_runner import run_backtest_variant
 
-# Charger les données
+# Load data
 loader = DataLoader("SPY", "2020-01-01", "2024-01-01")
 loader.fetch_yfinance()
 prices = loader.get_close()
 
-# Exécuter un backtest
+# Run a backtest
 label, curve, stats = run_backtest_variant(
     strategy_class=TrendFollowingStrategy,
     close_prices=prices,
@@ -52,54 +52,54 @@ label, curve, stats = run_backtest_variant(
 print(stats)
 ```
 
-### Scripts d'exécution
+### Execution scripts
 
 ```bash
-# Test des stratégies Moving Average
+# Test Moving Average strategies
 python src/TrendFollowing/MA.py
 
-# Test des stratégies Channel Breakout
+# Test Channel Breakout strategies
 python src/TrendFollowing/CB.py
 
-# Test des stratégies Volatility-adjusted
+# Test Volatility-adjusted strategies
 python src/TrendFollowing/VolAjusted.py
+
 ```
 
-## Structure du Projet
+## Project Structure
 
 ```
 src/
-├── data_loader.py          # Chargement des données (Yahoo Finance)
-├── strategy.py             # Définition des stratégies de trading
-├── portfolio.py            # Moteur de backtest
-├── backtest_runner.py      # Fonction utilitaire pour exécuter des backtests
-├── plot.py                 # Visualisation des résultats
+├── data_loader.py          # Data loading (Yahoo Finance)
+├── strategy.py             # Trading strategy definitions
+├── portfolio.py            # Backtesting engine
+├── backtest_runner.py      # Utility function to run backtests
+├── plot.py                 # Results visualization
 └── TrendFollowing/
-    ├── MA.py              # Scripts d'exécution pour Moving Average
-    ├── CB.py              # Scripts d'exécution pour Channel Breakout
-    └── VolAjusted.py      # Scripts d'exécution pour Momentum
+    ├── MA.py               # Execution scripts for Moving Average
+    ├── CB.py               # Execution scripts for Channel Breakout
+    └── VolAjusted.py       # Execution scripts for Momentum
 ```
 
-Pour plus de détails sur l'architecture, voir [ARCHITECTURE.md](ARCHITECTURE.md).
+For more details on the architecture, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
-## Stratégies Disponibles
+## Available Strategies
+- **TrendFollowingStrategy**: Trend following with moving averages (long only)
+- **TrendFollowingLongShortStrategy**: Trend following (long/short)
+- **ChannelBreakoutLongOnlyStrategy**: Channel breakout (long only)
+- **ChannelBreakoutLongShortStrategy**: Channel breakout (long/short)
+- **MomentumStrengthLongOnlyStrategy**: Volatility-adjusted momentum (long only)
+- **MomentumStrengthLongShortStrategy**: Volatility-adjusted momentum (long/short)
+- **BuyAndHoldStrategy**: Buy & hold strategy (benchmark)
 
-- **TrendFollowingStrategy** : Suivi de tendance avec moyennes mobiles (long only)
-- **TrendFollowingLongShortStrategy** : Suivi de tendance (long/short)
-- **ChannelBreakoutLongOnlyStrategy** : Channel breakout (long only)
-- **ChannelBreakoutLongShortStrategy** : Channel breakout (long/short)
-- **MomentumStrengthLongOnlyStrategy** : Momentum ajusté volatilité (long only)
-- **MomentumStrengthLongShortStrategy** : Momentum ajusté volatilité (long/short)
-- **BuyAndHoldStrategy** : Stratégie buy & hold (benchmark)
+## Dependencies
 
-## 🔧 Dépendances
+- `pandas` : Data manipulation
+- `numpy` : Numerical computations
+- `yfinance` : Financial data download
+- `matplotlib` : Visualization
 
-- `pandas` : Manipulation de données
-- `numpy` : Calculs numériques
-- `yfinance` : Téléchargement de données financières
-- `matplotlib` : Visualisation
-
-##  Statistiques Calculées
+## Computed Statistics
 
 - Total return
 - Annualized return
@@ -109,13 +109,14 @@ Pour plus de détails sur l'architecture, voir [ARCHITECTURE.md](ARCHITECTURE.md
 - Total fees paid
 - Turnover
 
-## Optimisations
+## Optimizations
 
-- **Vectorisation** : Les stratégies utilisent des opérations pandas/numpy vectorisées
-- **Numpy arrays** : Le moteur de backtest utilise numpy pour des performances optimales
-- **Code DRY** : Fonctions génériques pour éviter la duplication
+- **Vectorization** : Strategies use vectorized pandas/NumPy operations
+- **NumPy arrays** : The backtesting engine relies on NumPy for performance
+- **DRY code** : Generic functions to avoid code duplication
 
 ## Notes
 
-Ce projet est un outil éducatif pour comprendre les backtests de stratégies de trend following. Les résultats ne constituent pas des conseils financiers.
+This project is an educational tool designed to understand backtesting of trend-following strategies.
+Results do not constitute financial advice.
 

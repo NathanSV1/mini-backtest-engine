@@ -1,22 +1,20 @@
-# Architecture du Projet Backtest
+# Backtest Project Architecture
 
-# ===== DONE WITH AI ======
-
-## 📁 Structure du Projet
+## Project Structure
 
 ```
 src/
-├── data_loader.py          # 📥 Chargement des données (Yahoo Finance, CSV)
-├── strategy.py             # 🎯 Définition des stratégies de trading
-├── portfolio.py            # 💼 Moteur de backtest (simulation)
-├── plot.py                 # 📊 Visualisation des résultats
+├── data_loader.py          # Data loading (Yahoo Finance, CSV)
+├── strategy.py             # Trading strategy definitions
+├── portfolio.py            # Backtesting engine (simulation)
+├── plot.py                 # Results visualization
 │
-├── TrendFollowing/        # 📈 Scripts d'exécution pour stratégies trend-following
-│   ├── MA.py              # Moving Average strategies
-│   ├── CB.py              # Channel Breakout strategies
+├── TrendFollowing/         # Execution scripts for trend-following strategies
+│   ├── MA.py               # Moving Average strategies
+│   ├── CB.py               # Channel Breakout strategies
 │   └── VolAjusted.py       # Volatility-adjusted strategies
 │
-└── MultiAsset/            # 🔄 Stratégies multi-actifs
+└── MultiAsset/             # Multi-asset strategies
     ├── multi_asset_strategy.py
     ├── portfolio_multi_asset.py
     └── runners.py
@@ -24,254 +22,257 @@ src/
 
 ---
 
-## 🔄 Flux d'Exécution Complet
+## Complete Execution Flow
 
-### Exemple avec `MA.py` (Moving Average)
+### Example with `MA.py` (Moving Average)
 
 ```
-1. main_MA() est appelé
+1. main_MA() is called
    │
    ├─► DataLoader.fetch_yfinance()
-   │   └─► Télécharge les prix depuis Yahoo Finance
+   │   └─► Downloads prices from Yahoo Finance
    │
-   ├─► Pour chaque combinaison de paramètres (fast, slow):
+   ├─► For each parameter combination (fast, slow):
    │   │
    │   ├─► run_trend_following_variant()
    │   │   │
    │   │   ├─► TrendFollowingStrategy(fast, slow)
    │   │   │   └─► strategy.generate_signals(price_series)
-   │   │   │       └─► Calcule les moyennes mobiles
-   │   │   │           └─► Retourne: signals (pd.Series)
+   │   │   │       └─► Computes moving averages
+   │   │   │           └─► Returns: signals (pd.Series)
    │   │   │
    │   │   ├─► Portfolio(price_series, signals, cash, fees)
-   │   │   │   └─► Crée un objet portfolio
+   │   │   │   └─► Creates a portfolio object
    │   │   │
    │   │   └─► portfolio.run_backtest()
-   │   │       └─► Simule les trades jour par jour
-   │   │           └─► Retourne: curve (pd.Series des valeurs)
+   │   │       └─► Simulates trades day by day
+   │   │           └─► Returns: curve (pd.Series of values)
    │   │
    │   └─► portfolio.get_stats()
-   │       └─► Calcule Sharpe, return, drawdown, etc.
+   │       └─► Computes Sharpe, return, drawdown, etc.
    │
    ├─► BuyAndHoldStrategy (benchmark)
-   │   └─► Même processus
+   │   └─► Same process
    │
    └─► plot_trend_following_curves(curves_dict, stats_dict)
-       └─► Affiche tous les graphiques
+       └─► Displays all charts
+
 ```
 
 ---
 
-## 📦 Rôle de Chaque Fichier
+## Role of Each File
 
-### 1. `data_loader.py` - Chargement des Données
-**Rôle** : Récupérer les données de prix depuis Yahoo Finance ou CSV
+### 1. `data_loader.py` - Data loading
+**Role**: Retrieve price data from Yahoo Finance or CSV
 
-**Fonctions principales** :
-- `fetch_yfinance()` : Télécharge les données depuis Yahoo Finance
-- `get_close()` : Retourne les prix de clôture (pd.Series)
-- `get_open()` : Retourne les prix d'ouverture
-- `get_daily_returns()` : Retourne les rendements quotidiens
+**Main functions:**
+- `fetch_yfinance()` : Downloads data from Yahoo Finance
+- `get_close()` : Returns closing prices (pd.Series)
+- `get_open()` : Returns opening prices
+- `get_daily_returns()` : Returns daily returns
 
-**Utilisé par** : Tous les scripts `main_*()` dans `TrendFollowing/`
+`**Used by:** All `main_*()` scripts in ``TrendFollowing/`
 
 ---
 
-### 2. `strategy.py` - Définition des Stratégies
-**Rôle** : Définir les différentes stratégies de trading
+### 2. `strategy.py` - Strategy Definitions
+**Role**: Define the different trading strategies
 
-**Classes principales** :
-- `Strategy` (classe abstraite) : Interface de base
-- `TrendFollowingStrategy` : Suivi de tendance (long only)
-- `TrendFollowingLongShortStrategy` : Suivi de tendance (long/short)
+**Main classes**:
+- `Strategy` (abstract class): Base interface
+- `TrendFollowingStrategy` : Trend following (long only)
+- `TrendFollowingLongShortStrategy` : Trend following (long/short)
 - `ChannelBreakoutLongOnlyStrategy` : Channel breakout (long only)
 - `ChannelBreakoutLongShortStrategy` : Channel breakout (long/short)
-- `MomentumStrengthLongOnlyStrategy` : Momentum ajusté volatilité (long only)
-- `MomentumStrengthLongShortStrategy` : Momentum ajusté volatilité (long/short)
-- `BuyAndHoldStrategy` : Stratégie buy & hold (benchmark)
+- `MomentumStrengthLongOnlyStrategy` : Volatility-adjusted momentum (long only)
+- `MomentumStrengthLongShortStrategy` : Volatility-adjusted momentum (long/short)
+- `BuyAndHoldStrategy` : Buy & hold strategy (benchmark)
 
-**Méthode clé** :
+**Key method** :
 ```python
 strategy.generate_signals(price_series)
-# Retourne: pd.Series avec les signaux (-1, 0, 1 ou valeurs continues)
+# Returns: pd.Series with signals (-1, 0, 1 or continuous values)
 ```
 
-**Utilisé par** : Tous les scripts `run_*_variant()` dans `TrendFollowing/`
+**Used by** : All `run_*_variant()` scripts in `TrendFollowing/`
 
 ---
 
-### 3. `portfolio.py` - Moteur de Backtest
-**Rôle** : Simuler l'exécution des trades et calculer la performance
+### 3. `portfolio.py` - Backtesting Engine
+**Role** : Simulate trade execution and compute performance
 
-**Classe principale** : `Portfolio`
+**Main class** : `Portfolio`
 
-**Méthodes principales** :
+**Main methods:** :
 - `run_backtest()` : 
-  - Simule jour par jour les trades
-  - Gère le cash, les positions, les frais
-  - Retourne une courbe de valeur du portefeuille (pd.Series)
+  -Simulates trades day by day
+  - Manages cash, positions, and fees
+  - Returns a portfolio value curve (pd.Series)
   
 - `get_stats()` :
-  - Calcule les statistiques de performance
-  - Sharpe ratio, return annualisé, drawdown max, nombre de trades, etc.
-  - Retourne un dictionnaire de stats
+  - Computes performance statistics
+  - Sharpe ratio, annualized return, max drawdown, number of trades, etc.
+  - Returns a dictionary of statistics
 
 - `make_constant_growth_curve()` :
-  - Crée une courbe de référence (ex: 6% par an)
+  - Creates a reference curve (e.g. 6% per year)
 
-**Utilisé par** : Tous les scripts `run_*_variant()` dans `TrendFollowing/`
+**Used by:** : all `run_*_variant()` scripts in `TrendFollowing/`
 
 ---
 
-### 4. `plot.py` - Visualisation
-**Rôle** : Afficher les graphiques des résultats de backtest
+### 4. `plot.py` - Visualization
+**Role** : Display backtest result charts
 
-**Fonction principale** :
+**Main function:** :
 - `plot_trend_following_curves(curves_dict, stats_dict, ...)` :
-  - Prend un dictionnaire de courbes et de stats
-  - Trace toutes les courbes sur un même graphique
-  - Affiche les statistiques dans un encadré
-  - Gère les couleurs, légendes, récessions, etc.
+    - Takes a dictionary of curves and statistics
+    - Plots all curves on the same chart
+    - Displays statistics in a summary box
+    - Handles colors, legends, recessions, etc.
 
-**Paramètres optionnels** :
-- `figsize` : Taille de la figure
-- `show_recessions` : Afficher les zones de récession (GFC, COVID)
-- `initial_capital` : Capital initial pour le titre
-- `show_trades` : Afficher le nombre de trades
-- `save_path` : Chemin pour sauvegarder le graphique
+**Optional parameters** :
+- `figsize` : Figure size
+- `show_recessions` : Display recession periods (GFC, COVID)
+- `initial_capital` : Initial capital for the title
+- `show_trades` : Display the number of trades
+- `save_path` : Path to save the figure
 
-**Appelé par** : Tous les scripts `main_*()` à la fin de leur exécution
+**Called by** : all `main_*()` scripts at the end of execution
 
 ---
 
-### 5. Scripts `TrendFollowing/*.py` - Scripts d'Exécution
+### 5. `TrendFollowing/*.py` Scripts – Execution Scripts
 
-**Rôle** : Orchestrer l'exécution complète d'un type de stratégie
+**Role** : Orchestrate the full execution of a given strategy type
 
-**Structure typique** :
+**Typical Structure** :
 ```python
 def main_MA():
-    # 1. Charger les données
+    # 1. Load data
     loader = DataLoader(...)
     loader.fetch_yfinance()
     prices = loader.get_close()
     
-    # 2. Définir les paramètres à tester
+    # 2. Define parameters to test
     params_list = [(10, 30), (25, 75), ...]
     
-    # 3. Boucle sur les paramètres
+    # 3. Loop over parameters
     curves_dict = {}
     stats_dict = {}
     
     for params in params_list:
-        # Créer stratégie → générer signaux → backtest → stats
+        # Create strategy → generate signals → backtest → stats
         label, curve, stats = run_*_variant(prices, params, ...)
         curves_dict[label] = curve
         stats_dict[label] = stats
     
-    # 4. Ajouter benchmarks (Buy&Hold, 6% target)
+    # 4. Add benchmarks (Buy & Hold, 6% target)
     
-    # 5. Plotter les résultats
+    # 5. Plot results
     plot_trend_following_curves(curves_dict, stats_dict)
 ```
 
-**Fichiers** :
-- `MA.py` : Teste les stratégies Moving Average
-- `CB.py` : Teste les stratégies Channel Breakout
-- `VolAjusted.py` : Teste les stratégies Volatility-adjusted
+**Files** :
+- `MA.py` : Tests Moving Average strategies
+- `CB.py` : Tests Channel Breakout strategies
+- `VolAjusted.py` : Tests Volatility-adjusted strategies
 
-**Fonctions helper** :
-- `run_trend_following_variant()` : Exécute une variante de stratégie
-- `run_channel_breakout_*_variant()` : Exécute une variante CB
-- `run_momentum_strength_*_variant()` : Exécute une variante momentum
+**Functions helper** :
+- `run_trend_following_variant()` : Executes a strategy variant
+- `run_channel_breakout_*_variant()` : Executes a channel breakout variant
+- `run_momentum_strength_*_variant()` : Executes a momentum variant
 
 ---
 
-## 🔍 Exemple Concret : Exécution de `MA.py`
+## Concrete Example: Executing `MA.py`
 
 ```python
-# 1. Vous lancez : python src/TrendFollowing/MA.py
+# 1. You run: python src/TrendFollowing/MA.py
 
-# 2. Python exécute :
+# 2. Python executes:
 if __name__ == "__main__":
     main_MA()
 
-# 3. main_MA() fait :
+# 3. main_MA() does:
 #    a) DataLoader("ACWI", "2008-01-01", "2025-01-01")
-#       └─► Télécharge les prix ACWI depuis Yahoo Finance
+#       └─► Downloads ACWI prices from Yahoo Finance
 #
-#    b) Pour chaque (fast=10, slow=30), (fast=25, slow=75), etc. :
+#    b) For each (fast=10, slow=30), (fast=25, slow=75), etc.:
 #       ├─► TrendFollowingStrategy(fast=10, slow=30)
 #       ├─► strategy.generate_signals(prices)
-#       │   └─► Calcule: fast_ma = prices.rolling(10).mean()
+#       │   └─► Computes:
+#       │       fast_ma = prices.rolling(10).mean()
 #       │       slow_ma = prices.rolling(30).mean()
 #       │       signals = (fast_ma > slow_ma).astype(int)
 #       │
 #       ├─► Portfolio(prices, signals, cash=10000, fees=0.001)
 #       ├─► portfolio.run_backtest()
-#       │   └─► Simule jour par jour:
-#       │       - Si signal change → trade
-#       │       - Calcule cash, position, valeur totale
-#       │       - Applique les frais
-#       │       - Stocke la valeur à chaque jour
+#       │   └─► Simulates day by day:
+#       │       - If signal changes → trade
+#       │       - Computes cash, position, total value
+#       │       - Applies fees
+#       │       - Stores daily portfolio value
 #       │
 #       └─► portfolio.get_stats()
-#           └─► Calcule: Sharpe, return, drawdown, nb trades, etc.
+#           └─► Computes: Sharpe, return, drawdown, number of trades, etc.
 #
-#    c) Crée Buy&Hold benchmark
+#    c) Creates Buy & Hold benchmark
 #
 #    d) plot_trend_following_curves(curves_dict, stats_dict)
-#       └─► Affiche le graphique avec toutes les courbes
+#       └─► Displays the chart with all curves
+
 ```
 
 ---
 
-## 📊 Types de Données Échangés
+## Data Types Exchanged
 
-### Entre les modules :
+### Between modules:
 
 1. **DataLoader → Strategy** :
-   - Input : `price_series` (pd.Series avec dates et prix)
-   - Output : `signals` (pd.Series avec dates et signaux -1/0/1 ou continus)
+   - Input : `price_series` (pd.Series)
+   - Output : `signals` (pd.Series with dates and signals -1/0/1 or continuous)
 
 2. **Strategy → Portfolio** :
    - Input : `price_series` + `signals`
-   - Output : `results` (pd.Series avec dates et valeurs du portefeuille)
+   - Output : `results` (pd.Series with dates and portfolio values)
 
 3. **Portfolio → Plot** :
-   - Input : `curves_dict` (dict de pd.Series) + `stats_dict` (dict de dicts)
-   - Output : Graphique matplotlib
+   - Input : `curves_dict` (dict of pd.Series) + `stats_dict` (dict of dicts)
+   - Output : matplotlib chart
 
 ---
 
-## 🎯 Points Clés à Retenir
+## Key Takeaways
 
-1. **Séparation des responsabilités** :
-   - `data_loader.py` : Données
-   - `strategy.py` : Logique de trading
+1. **Separation of responsibilities:** :
+   - `data_loader.py` : Data
+   - `strategy.py` : Trading logic
    - `portfolio.py` : Simulation
-   - `plot.py` : Visualisation
+   - `plot.py` : Vizualisation
 
-2. **Pattern d'exécution** :
-   - Les scripts `main_*()` orchestrent tout
-   - Ils appellent des fonctions `run_*_variant()` pour chaque paramètre
-   - Ces fonctions créent Strategy → Portfolio → run_backtest() → get_stats()
-   - Tout est collecté dans des dictionnaires
-   - À la fin, `plot_trend_following_curves()` affiche tout
+2. **Execution pattern:** :
+   -  `main_*()` scripts orchestrate everything
+   - They call`run_*_variant()` functions for each parameter set
+   - These functions create Strategy → Portfolio → run_backtest() → get_stats()
+   - Everything is collected into dictionaries
+   - Finally, `plot_trend_following_curves()` displays the results
 
-3. **Réutilisabilité** :
-   - Les classes Strategy sont réutilisables
-   - Portfolio peut être utilisé avec n'importe quelle stratégie
-   - plot.py est utilisé par tous les scripts
+3. **Reusability** :
+   - Strategy classes are reusable
+   - Portfolio can be used with any strategy
+   - plot.py is used by all scripts
 
-4. **Flux de données** :
+4. **Data flow** :
    ```
-   Prix → Signaux → Positions → Valeur Portfolio → Stats → Graphique
+   Prices → Signals → Positions → Portfolio Value → Stats → Chart
    ```
 
 ---
 
-## 🚀 Comment Lancer un Backtest
+## How to Run a Backtest
 
 ```bash
 # Moving Average strategies
@@ -284,9 +285,8 @@ python src/TrendFollowing/CB.py
 python src/TrendFollowing/VolAjusted.py
 ```
 
-Chaque script :
-1. Charge les données
-2. Teste plusieurs variantes de stratégies
-3. Calcule les benchmarks
-4. Affiche un graphique comparatif
-
+Each script:
+1. Loads data
+2. Tests multiple strategy variants
+3. Computes benchmarks
+4. Displays a comparative chart

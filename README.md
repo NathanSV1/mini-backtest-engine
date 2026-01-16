@@ -13,7 +13,7 @@ Un moteur de backtest simple et efficace pour tester des stratégies de trading 
 
 ```bash
 # Cloner le repository
-git clone <[url](https://github.com/NathanSV1/mini-backtest-engine.git)>
+git clone https://github.com/NathanSV1/mini-backtest-engine.git
 cd backtest0
 
 # Créer un environnement virtuel
